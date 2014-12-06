@@ -13,6 +13,7 @@ def add_separator(menu):
     separator.show()
     menu.append(separator)
 
+
 def item_about(menu):
     dialog = Gtk.AboutDialog.new()
     dialog.set_program_name('Indicator Github')
@@ -26,6 +27,7 @@ def item_about(menu):
     dialog.show_all()
     dialog.run()
     dialog.destroy()
+
 
 def item_quit(menu):
     add_separator(menu)
@@ -53,6 +55,7 @@ def loop():
         time.sleep(120)
 
 
+
 if __name__ == '__main__':
     indicator = AppIndicator3.Indicator.new('Github Notifier', 'github', 0)
     indicator.set_icon_theme_path(os.path.abspath('.'))
@@ -71,7 +74,4 @@ if __name__ == '__main__':
     menu.show_all()
 
     indicator.set_menu(menu)
-    th = threading.Thread(target = loop, name = 'LoopNotify')
-    th.start()
-    th.join()
     Gtk.main()
