@@ -5,13 +5,25 @@ import os
 from gi.repository import AppIndicator3
 from gi.repository import Gtk, GObject
 import requests
-import time, threading
+import webbrowser
 
 
+def goto_github():
+    webbrowser.open_new('https://github.com/')
+
+
+############### menu items ###############
 def add_separator(menu):
     separator = Gtk.SeparatorMenuItem()
     separator.show()
     menu.append(separator)
+
+
+def add_link(menu):
+    link = Gtk.MenuItem(label = 'View in Github')
+    #link.connect('activate', )
+    menu.append(link)
+    link.show()
 
 
 def item_about(menu):
@@ -30,13 +42,13 @@ def item_about(menu):
 
 
 def item_quit(menu):
-    add_separator(menu)
     exit_item = Gtk.MenuItem('Quit')
-    exit_item.connect('activate', quit_indicator)
+    exit_item.connect('activate', Gtk.main_quit)
     menu.append(exit_item)
     exit_item.show()
 
 
+############### check notifications ###############
 def notify():
     with open(os.path.abspath('.') + '/token', 'r') as f:
         token = f.read()
@@ -46,32 +58,32 @@ def notify():
         else:
             msg = requests.get('https://api.github.com/notifications?access_token=' + token)
             msg = msg.json()
-            indicator.set_label(' [ '+str(len(msg))+' ]', '100% thrust')
+            indicator.set_label(' '+str(len(msg))+' ', '100% thrust')
+        return True
 
-
-def loop():
-    while(True):
-        notify()
-        time.sleep(120)
 
 
 
 if __name__ == '__main__':
+    #set indicator
     indicator = AppIndicator3.Indicator.new('Github Notifier', 'github', 0)
     indicator.set_icon_theme_path(os.path.abspath('.'))
     indicator.set_icon('github')
     indicator.set_label('Test', '100% thrust')
     indicator.set_status(1)
 
+    #set menu
     menu = Gtk.Menu()
+    add_link(menu)
+    menu.append(Gtk.SeparatorMenuItem.new())
     menu_item = Gtk.MenuItem.new_with_label('About...')
     menu_item.connect('activate', item_about)
     menu.append(menu_item)
     menu.append(Gtk.SeparatorMenuItem.new())
-    menu_item = Gtk.MenuItem.new_with_label('Quit')
-    menu_item.connect('activate', Gtk.main_quit)
-    menu.append(menu_item)
+    item_quit(menu)
     menu.show_all()
 
     indicator.set_menu(menu)
+    notify()
+    GObject.timeout_add(120*1000, notify) #check for notifications every 2 mins
     Gtk.main()
