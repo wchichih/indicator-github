@@ -2,6 +2,8 @@
 # -*-utf8-*-
 
 import os
+import gi
+gi.require_version('AppIndicator3', '0.1')
 from gi.repository import AppIndicator3
 from gi.repository import Gtk, GObject
 import requests
@@ -54,12 +56,17 @@ def notify():
         token = f.read()
         token = token[:40]
         if len(token) != 40:
-            indicator.set_label('Token Error', '100% thrust')
+            indicator.set_label(' Token Err', '100% thrust')
         else:
-            msg = requests.get('https://api.github.com/notifications?\
-            access_token=' + token)
-            msg = msg.json()
-            indicator.set_label(' '+str(len(msg))+' ', '100% thrust')
+            try:
+                msg = requests.get('https://api.github.com/notifications?access_token=' + token)
+                msg = msg.json()
+                if 'message' in msg:
+                    indicator.set_label(msg.get('message'), '100% thrust')
+                else:
+                    indicator.set_label(' '+str(len(msg))+' ', '100% thrust')
+            except requests.exceptions.ConnectionError:
+                indicator.set_label(' Offline', '100% thrust')
         return True
 
 
