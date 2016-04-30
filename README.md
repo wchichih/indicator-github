@@ -23,6 +23,6 @@ Use
 
 **Note:**Don't leave blank spaces ahead of line in **token** file.
 
-If the token is wrong, the number of notifications always shows 2. You can check whether the token is right by open this link in browser:
+You can check whether the token is right by open this link in browser:
 
 `https://api.github.com/notifications?access_token=YOURTOKEN`
